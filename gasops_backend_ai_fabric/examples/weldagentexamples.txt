@@ -1,0 +1,127 @@
+User : Get all projects where Ochoa Jose welded?
+SQL Query :
+SELECT DISTINCT p.ProjectNumber, p.WorkOrderNumber, p.Location, p.Region, p.WorkOrderStatus
+FROM welddetails w
+JOIN project_workorderdetails p
+  ON w.TransmissionWorkOrderID = p.TransmissionWorkOrderID
+WHERE (
+    w.Welder1Name LIKE '%Ochoa%Jose%' OR
+    w.Welder2Name LIKE '%Ochoa%Jose%' OR
+    w.Welder3Name LIKE '%Ochoa%Jose%' OR
+    w.Welder4Name LIKE '%Ochoa%Jose%'
+);
+
+User : show me comparision of count of tickets in redig and no redig
+SQL Query :
+SELECT IsRedig, COUNT(*) AS TicketCount FROM project_workorderdetails WHERE YEAR(CAST(CreatedOnDate AS DATE)) = 2025 GROUP BY IsRedig; 
+
+User : show me the status of work orders by CAC
+SQL Query:
+SELECT DISTINCT pw.WorkOrderNumber, pw.ProjectNumber, pw.Location, pw.Region, pw.WorkOrderStatus, pw.CreatedOnDate
+FROM project_workorderdetails pw
+JOIN welddetails wd ON pw.TransmissionWorkOrderID = wd.TransmissionWorkOrderID
+WHERE wd.WeldingContractorName LIKE '%CAC%';
+
+User : get me the list of work orders where in CWI contrcator has been replaced
+SQL Query :
+SELECT 
+    p.ProjectNumber, 
+    p.WorkOrderNumber, 
+    p.CreatedOnDate, 
+    p.WorkOrderStatus, 
+    p.Location, 
+    p.Region,
+    (SELECT COUNT(DISTINCT ProjectNumber) 
+     FROM project_workorderdetails 
+     WHERE WorkOrderNumber LIKE '%[A-Za-z]') AS DistinctProjectsCount  -- use this count in the intro line
+FROM project_workorderdetails p
+WHERE p.ProjectNumber IN (
+    SELECT ProjectNumber
+    FROM project_workorderdetails
+    WHERE WorkOrderNumber LIKE '%[A-Za-z]' -- ends with alphabet which are CWI Contractor replaced WorkOrderNumber
+)
+ORDER BY p.ProjectNumber, p.WorkOrderNumber;
+
+User: Show me all projects?
+SQL:
+SELECT DISTINCT ProjectNumber, WorkOrderNumber, Location, Region, WorkOrderStatus, CreatedOnDate
+FROM project_workorderdetails;
+-- always get the unique count of ProjectNumber and WorkOrderNumber whenever these columns are present in the result set.
+SELECT 'ProjectNumber', COUNT(DISTINCT ProjectNumber) FROM project_workorderdetails;
+SELECT 'WorkOrderNumber', COUNT(DISTINCT WorkOrderNumber) FROM project_workorderdetails;
+
+User : Show me the projects in queens?
+SQL Query:
+SELECT DISTINCT ProjectNumber, WorkOrderNumber, Location, Region, WorkOrderStatus, CreatedOnDate,
+       (SELECT COUNT(DISTINCT ProjectNumber) FROM project_workorderdetails WHERE Region LIKE '%Queens%') AS DistinctProjectsCount,
+       (SELECT COUNT(DISTINCT WorkOrderNumber) FROM project_workorderdetails WHERE Region LIKE '%Queens%') AS DistinctWorkOrdersCount
+FROM project_workorderdetails
+WHERE Region LIKE '%Queens%';
+
+User: Give me the projects ending with 16
+SQL Query:
+SELECT DISTINCT ProjectNumber, WorkOrderNumber, Location, Region, WorkOrderStatus, CreatedOnDate,
+    (SELECT COUNT(DISTINCT ProjectNumber) FROM project_workorderdetails WHERE ProjectNumber LIKE '%16') AS ProjectCount,
+    (SELECT COUNT(DISTINCT WorkOrderNumber) FROM project_workorderdetails WHERE ProjectNumber LIKE '%16') AS WorkOrderCount
+FROM project_workorderdetails
+WHERE ProjectNumber LIKE '%16';
+
+User : How many projects are in queens which are still in progress?
+SQL: 
+SELECT p.ProjectNumber,p.WorkOrderNumber,p.CreatedOnDate,p.Location,
+    (
+        SELECT COUNT(DISTINCT ProjectNumber) FROM project_workorderdetails
+        WHERE Region LIKE '%Queens%' AND WorkOrderStatus LIKE '%In Progress%'
+    ) AS ProjectCount
+FROM project_workorderdetails p
+WHERE  p.Region LIKE '%Queens%' AND p.WorkOrderStatus LIKE '%In Progress%';
+
+User : Are there any work orders where the inspection contractors are not assigned?
+SQL Query:
+SELECT DISTINCT pw.WorkOrderNumber, pw.ProjectNumber, pw.Location, pw.Region, pw.WorkOrderStatus, pw.CreatedOnDate,
+       (SELECT COUNT(DISTINCT ProjectNumber)
+        FROM project_workorderdetails
+        WHERE (ContractorCWIName IS NULL OR ContractorCWIName = '')
+           OR (ContractorNDEName IS NULL OR ContractorNDEName = '')
+           OR (ContractorCRIName IS NULL OR ContractorCRIName = '')) AS ProjectCount
+FROM project_workorderdetails pw
+WHERE (pw.ContractorCWIName IS NULL OR pw.ContractorCWIName = '')
+   OR (pw.ContractorNDEName IS NULL OR pw.ContractorNDEName = '')
+   OR (pw.ContractorCRIName IS NULL OR pw.ContractorCRIName = '');
+
+User : who is the supervisor and engineers for 101380322
+SQL Query:
+SELECT ProjectSupervisor1Name, ProjectSupervisor1ITSID, ProjectSupervisor2Name, ProjectSupervisor2ITSID, ProjectSupervisor3Name, ProjectSupervisor3ITSID, ProjectSupervisor4Name, ProjectSupervisor4ITSID, ProjectEngineer1Name, ProjectEngineer1ITSID, ProjectEngineer2Name, ProjectEngineer2ITSID, ProjectEngineer3Name, ProjectEngineer3ITSID, ProjectEngineer4Name, ProjectEngineer4ITSID
+FROM project_workorderdetails
+WHERE WorkOrderNumber = '101380322';
+
+User : give me the list of work orders supervised by Waqar
+SQL Query:
+SELECT DISTINCT 
+    WorkOrderNumber,
+    ProjectNumber,
+    Location,
+    Region,
+    WorkOrderStatus,
+    CreatedOnDate,
+    CASE
+        WHEN ProjectSupervisor1Name LIKE '%Waqar%' THEN ProjectSupervisor1Name
+        WHEN ProjectSupervisor2Name LIKE '%Waqar%' THEN ProjectSupervisor2Name
+        WHEN ProjectSupervisor3Name LIKE '%Waqar%' THEN ProjectSupervisor3Name
+        WHEN ProjectSupervisor4Name LIKE '%Waqar%' THEN ProjectSupervisor4Name
+    END AS Supervisor,
+    (
+        SELECT COUNT(DISTINCT WorkOrderNumber)
+        FROM project_workorderdetails
+        WHERE 
+            ProjectSupervisor1Name LIKE '%Waqar%' 
+            OR ProjectSupervisor2Name LIKE '%Waqar%' 
+            OR ProjectSupervisor3Name LIKE '%Waqar%' 
+            OR ProjectSupervisor4Name LIKE '%Waqar%'
+    ) AS WorkOrderCount
+FROM project_workorderdetails
+WHERE 
+    ProjectSupervisor1Name LIKE '%Waqar%' 
+    OR ProjectSupervisor2Name LIKE '%Waqar%' 
+    OR ProjectSupervisor3Name LIKE '%Waqar%' 
+    OR ProjectSupervisor4Name LIKE '%Waqar%';

@@ -1,0 +1,123 @@
+Weld SCHEMA:
+
+TABLE : welddetails
+Description: Stores complete weld inspection, execution, NDE, CRI, and completion details for each weld.
+Columns:
+- TransmissionWorkOrderID (bigint): Unique ID linking weld to the work order.
+- WeldSerialNumber (varchar): Unique serial number assigned to the weld.
+- IsCutOut (varchar): Indicates if weld was cut out. Allowed values: YES, NO.
+- IsRepaired (varchar): Indicates if weld was repaired. Allowed values: YES, NO.
+- Completed (varchar): Indicates if the weld is completed. Allowed values: YES, NO.
+- IsUnlocked (varchar): Indicates if weld record is unlocked for edit. Allowed values: YES, NO.
+- TieinWeld (varchar): Indicates if weld is a tie-in weld. Allowed values: YES, NO.
+- Prefab (varchar): Indicates if weld was prefabricated. Allowed values: YES, NO.
+- FinalWeld (varchar): Indicates presence of a final weld. Allowed values: YES or NO.
+- LineupClamp (varchar): Indicates if lineup clamp was used. Allowed values: YES, NO.
+- MiterJoint (varchar): Indicates if the joint is mitered. Allowed values: YES, NO.
+- InsideAccess (varchar): Indicates inside access availability. Allowed values: YES, NO.
+- InsideInspected (varchar): Indicates whether inside inspection was done. Allowed values: YES, NO.
+- AddedtoWeldMap (varchar): Indicates weld is added to weld map. Allowed values: YES, NO.
+- HasNDEReport (varchar): Indicates if NDE report exists. Allowed values: YES, NO.
+- WeldCategory (varchar): Type/category of weld (e.g., Production, CutOut).
+- WeldingContractorName (varchar): Name of the welding contractor.
+- ContractorCWIName (varchar): Name of contractor’s CWI.
+- CWIName (varchar): Name of the assigned CWI who inspected the weld.
+- WeldCompletionDateTime (varchar): Date/time when weld was completed.
+- CWIResult (varchar): Result of CWI inspection. Allowed values: Accept, Reject.
+- NDEStatus (varchar): Status of NDE review. Allowed values: Accept, In Process, Pending, Reject.
+- CRIStatus (varchar): Status of CRI review. Allowed values: Accept, Reject, Pending, In Process.
+- TRStatus (varchar): Status of third-party review. Allowed value: Approved.
+- Welder1ITSID (varchar): ITSID of first welder.
+- Welder2ITSID (varchar): ITSID of second welder.
+- Welder3ITSID (varchar): ITSID of third welder.
+- Welder4ITSID (varchar): ITSID of fourth welder.
+- Welder1Name (varchar): Full name of welder 1.
+- Welder2Name (varchar): Full name of welder 2.
+- Welder3Name (varchar): Full name of welder 3.
+- Welder4Name (varchar): Full name of welder 4.
+- HeatSerialNumber1 (varchar): Heat number of first rod material.
+- Heat1Description (varchar): Description of first heat material.
+- HeatSerialNumber2 (varchar): Heat number of second rod material.
+- Heat2Description (varchar): Description of second heat material.
+- RootRodClass (varchar): Rod class used for root pass.
+- RootLotNumber (varchar): Lot number for root rod.
+- HotRodClass (varchar): Rod class used for hot pass.
+- HotLotNumber (varchar): Lot number for hot rod.
+- FillerRodClass (varchar): Rod class used for filler pass.
+- FillerLotNumber (varchar): Lot number for filler material.
+- CapRodClass (varchar): Rod class used for cap pass.
+- CapLotNumber (varchar): Lot number for cap rod.
+- PreHeat (varchar): Preheat details before welding.
+- Temperature (varchar): Welding temperature measurement.
+- Alignment (varchar): Alignment information for joint fit.
+- Gap (varchar): Root gap measurement.
+- WeldingProcess (varchar): Welding process used (SMAW, etc).
+- JointFitUp (varchar): Details on joint fit-up.
+- PreweldCleanliness (varchar): Cleanliness status before welding.
+- MitterDegrees (varchar): Degree of miter angle.
+- Tacks (varchar): Number/quality of tack welds.
+- RootPass (varchar): Details of root pass weld.
+- SubfillPasses (varchar): Number/status of subfill passes.
+- CapHP (varchar): Cap pass information.
+- Comments (varchar): Free-text comments for weld.
+- NDEContractorName (varchar): Name of the NDE contractor.
+- NDEInspectorName (varchar): Name of NDE inspector.
+- RadiographedDateDT (varchar): Date radiography was performed.
+- RTReportNumber (varchar): Radiographic test report number.
+- NDEReportNumber (varchar): Full NDE report number.
+- NDECompletionDate (varchar): Date NDE process completed.
+- CRIContractorName (varchar): CRI contractor name.
+- CRIInspectorName (varchar): CRI inspector name.
+- CRICompletionDate (varchar): Date CRI inspection completed.
+- TRContractorName (varchar): Third-party review contractor name.
+- TRName (varchar): Third-party inspector name.
+- TRCompletionDate (varchar): Date third-party review completed.
+
+
+TABLE project_workorderdetails
+Description: Stores project-level metadata and supervisory information for each work order.
+Columns:
+- TransmissionWorkOrderID (bigint): Links work order to weld records.
+- ProjectNumber (varchar): Project identifier.
+- WorkOrderNumber (varchar): Work order number.
+- CreatedOnDate (varchar): Date work order was created.
+- IsRedig (varchar): Indicates if re-digging was required.
+- WorkOrderStatus (varchar): Current status of the work order.
+- Region (varchar): Operational region.
+- Location (varchar): Work location.
+- WeldingContractorName (varchar): Welding contractor assigned.
+- ContractorCWIName (varchar): CWI assigned by contractor.
+- ContractorNDEName (varchar): NDE inspector/contractor assigned.
+- ContractorCRIName (varchar): CRI contractor assigned.
+- ProjectManagerEmployeeMasterID (varchar): EmployeeMaster ID of PM.
+- ProjectManagerEmployeeNumber (varchar): PM’s employee number.
+- ProjectManagerITSID (varchar): PM’s ITSID.
+- ProjectManagerName (varchar): PM’s name.
+- ProjectSupervisor1EmployeeMasterID (varchar): Supervisor 1 ID.
+- ProjectSupervisor1ITSID (varchar): Supervisor 1 ITSID.
+- ProjectSupervisor1Name (varchar): Supervisor 1 name.
+- ProjectSupervisor2EmployeeMasterID (varchar): Supervisor 2 ID.
+- ProjectSupervisor2ITSID (varchar): Supervisor 2 ITSID.
+- ProjectSupervisor2Name (varchar): Supervisor 2 name.
+- ProjectSupervisor3EmployeeMasterID (varchar): Supervisor 3 ID.
+- ProjectSupervisor3ITSID (varchar): Supervisor 3 ITSID.
+- ProjectSupervisor3Name (varchar): Supervisor 3 name.
+- ProjectSupervisor4EmployeeMasterID (varchar): Supervisor 4 ID.
+- ProjectSupervisor4ITSID (varchar): Supervisor 4 ITSID.
+- ProjectSupervisor4Name (varchar): Supervisor 4 name.
+- ProjectEngineer1EmployeeMasterID (varchar): Engineer 1 ID.
+- ProjectEngineer1ITSID (varchar): Engineer 1 ITSID.
+- ProjectEngineer1Name (varchar): Engineer 1 name.
+- ProjectEngineer2EmployeeMasterID (varchar): Engineer 2 ID.
+- ProjectEngineer2ITSID (varchar): Engineer 2 ITSID.
+- ProjectEngineer2Name (varchar): Engineer 2 name.
+- ProjectEngineer3EmployeeMasterID (varchar): Engineer 3 ID.
+- ProjectEngineer3ITSID (varchar): Engineer 3 ITSID.
+- ProjectEngineer3Name (varchar): Engineer 3 name.
+- ProjectEngineer4EmployeeMasterID (varchar): Engineer 4 ID.
+- ProjectEngineer4ITSID (varchar): Engineer 4 ITSID.
+- ProjectEngineer4Name (varchar): Engineer 4 name.
+
+
+RELATIONSHIPS:
+- welddetails.TransmissionWorkOrderID = project_workorderdetails.TransmissionWorkOrderID
