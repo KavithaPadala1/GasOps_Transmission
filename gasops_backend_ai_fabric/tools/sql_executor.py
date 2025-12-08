@@ -297,16 +297,105 @@ def get_fabric_connection_freetds():
         raise Exception(error_msg)
 
 
+# def execute_sql_query(sql_query: str) -> List[Dict[str, Any]]:
+#     """
+#     Execute a SQL SELECT query against Microsoft Fabric warehouse using pyodbc with FreeTDS.
+#     Automatically handles token expiration and retries with fresh tokens.
+    
+#     Args:
+#         sql_query: The SQL SELECT query to execute
+    
+#     Returns:
+#         List[Dict[str, Any]]: List of dictionaries containing the query results
+    
+#     Raises:
+#         Exception: If query execution fails after retries
+#     """
+#     max_retries = 2
+#     retry_count = 0
+    
+#     while retry_count < max_retries:
+#         try:
+#             print(f"[execute_sql_query] Executing query (attempt {retry_count + 1}/{max_retries})")
+#             print(f"[execute_sql_query] SQL: {sql_query}")  
+            
+#             # Get database connection with token handling
+#             conn = get_fabric_connection_freetds()
+#             cursor = conn.cursor()
+            
+#             # Execute the query
+#             cursor.execute(sql_query)
+            
+#             # Fetch column names
+#             columns = [column[0] for column in cursor.description]
+            
+#             # Fetch all rows
+#             rows = cursor.fetchall()
+            
+#             # Convert to list of dictionaries
+#             results = []
+#             for row in rows:
+#                 row_dict = {}
+#                 for i, column in enumerate(columns):
+#                     value = row[i]
+#                     # Handle datetime objects
+#                     if isinstance(value, datetime):
+#                         value = value.strftime('%Y-%m-%d %H:%M:%S')
+#                     row_dict[column] = value
+#                 results.append(row_dict)
+            
+#             cursor.close()
+#             conn.close()
+            
+#             print(f"[execute_sql_query] ✅ Successfully fetched {len(results)} rows")
+#             return results
+            
+#         except pyodbc.Error as e:
+#             retry_count += 1
+#             error_msg = f"Database error: {str(e)}"
+#             print(f"[execute_sql_query] ❌ {error_msg}")
+            
+#             # If it's a token/auth error and we haven't exhausted retries, try again
+#             if retry_count < max_retries and ("token" in str(e).lower() or "authentication" in str(e).lower()):
+#                 print(f"[execute_sql_query] 🔄 Authentication error detected, retrying with fresh token...")
+#                 # Clear token cache to force refresh
+#                 global _token_cache
+#                 _token_cache["token"] = None
+#                 _token_cache["expires_at"] = 0
+#                 continue
+            
+#             # Otherwise, raise the error
+#             raise Exception(error_msg)
+#         except Exception as e:
+#             retry_count += 1
+#             error_msg = f"Unexpected error: {str(e)}"
+#             print(f"[execute_sql_query] ❌ {error_msg}")
+            
+#             # If it's a token/auth error and we haven't exhausted retries, try again
+#             if retry_count < max_retries and ("token" in str(e).lower() or "authentication" in str(e).lower()):
+#                 print(f"[execute_sql_query] 🔄 Authentication error detected, retrying with fresh token...")
+#                 # Clear token cache to force refresh
+#                 _token_cache["token"] = None
+#                 _token_cache["expires_at"] = 0
+#                 continue
+            
+#             # Otherwise, raise the error
+#             raise Exception(error_msg)
+    
+#     raise Exception("Query execution failed after maximum retries")
+
+
 def execute_sql_query(sql_query: str) -> List[Dict[str, Any]]:
     """
-    Execute a SQL SELECT query against Microsoft Fabric warehouse using pyodbc with FreeTDS.
+    Execute SQL query(ies) against Microsoft Fabric warehouse using pyodbc with FreeTDS.
+    Supports multiple SELECT statements separated by semicolons.
     Automatically handles token expiration and retries with fresh tokens.
     
     Args:
-        sql_query: The SQL SELECT query to execute
+        sql_query: The SQL query or queries to execute (can contain multiple SELECTs)
     
     Returns:
-        List[Dict[str, Any]]: List of dictionaries containing the query results
+        List[Dict[str, Any]]: List of dictionaries containing all query results
     
     Raises:
         Exception: If query execution fails after retries
@@ -323,32 +412,45 @@ def execute_sql_query(sql_query: str) -> List[Dict[str, Any]]:
             conn = get_fabric_connection_freetds()
             cursor = conn.cursor()
             
-            # Execute the query
-            cursor.execute(sql_query)
+            # Split queries by semicolon and filter out empty ones
+            queries = [q.strip() for q in sql_query.split(';') if q.strip()]
             
-            # Fetch column names
-            columns = [column[0] for column in cursor.description]
+            all_results = []
             
-            # Fetch all rows
-            rows = cursor.fetchall()
-            
-            # Convert to list of dictionaries
-            results = []
-            for row in rows:
-                row_dict = {}
-                for i, column in enumerate(columns):
-                    value = row[i]
-                    # Handle datetime objects
-                    if isinstance(value, datetime):
-                        value = value.strftime('%Y-%m-%d %H:%M:%S')
-                    row_dict[column] = value
-                results.append(row_dict)
+            # Execute each query separately
+            for idx, query in enumerate(queries):
+                print(f"[execute_sql_query] Executing statement {idx + 1}/{len(queries)}")
+                cursor.execute(query)
+                
+                # Fetch column names
+                columns = [column[0] for column in cursor.description]
+                
+                # Fetch all rows for this query
+                rows = cursor.fetchall()
+                
+                # Convert to list of dictionaries
+                for row in rows:
+                    row_dict = {}
+                    for i, column in enumerate(columns):
+                        value = row[i]
+                        # Handle datetime objects
+                        if isinstance(value, datetime):
+                            value = value.strftime('%Y-%m-%d %H:%M:%S')
+                        row_dict[column] = value
+                    all_results.append(row_dict)
+                
+                # If there are more queries, move to next result set
+                if idx < len(queries) - 1:
+                    try:
+                        cursor.nextset()
+                    except:
+                        pass  # Some drivers don't support nextset for single queries
             
             cursor.close()
             conn.close()
             
-            print(f"[execute_sql_query] ✅ Successfully fetched {len(results)} rows")
-            return results
+            print(f"[execute_sql_query] ✅ Successfully fetched {len(all_results)} total rows from {len(queries)} statement(s)")
+            return all_results
             
         except pyodbc.Error as e:
             retry_count += 1

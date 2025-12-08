@@ -125,3 +125,30 @@ WHERE
     OR ProjectSupervisor2Name LIKE '%Waqar%' 
     OR ProjectSupervisor3Name LIKE '%Waqar%' 
     OR ProjectSupervisor4Name LIKE '%Waqar%';
+
+User : Show me the work orders assigned to Project Supervisor James Clark
+SQL Query :
+SELECT DISTINCT
+    WorkOrderNumber, ProjectNumber, Location, Region, WorkOrderStatus, CreatedOnDate,
+    CASE
+        WHEN ProjectSupervisor1Name LIKE '%James Clark%' THEN ProjectSupervisor1Name
+        WHEN ProjectSupervisor2Name LIKE '%James Clark%' THEN ProjectSupervisor2Name
+        WHEN ProjectSupervisor3Name LIKE '%James Clark%' THEN ProjectSupervisor3Name
+        WHEN ProjectSupervisor4Name LIKE '%James Clark%' THEN ProjectSupervisor4Name
+    END AS Supervisor,
+    (
+        SELECT COUNT(DISTINCT WorkOrderNumber)
+        FROM project_workorderdetails
+        WHERE
+            ProjectSupervisor1Name LIKE '%James Clark%'
+            OR ProjectSupervisor2Name LIKE '%James Clark%'
+            OR ProjectSupervisor3Name LIKE '%James Clark%'
+            OR ProjectSupervisor4Name LIKE '%James Clark%'
+    ) AS WorkOrderCount
+FROM project_workorderdetails
+WHERE
+    ProjectSupervisor1Name LIKE '%James Clark%'
+    OR ProjectSupervisor2Name LIKE '%James Clark%'
+    OR ProjectSupervisor3Name LIKE '%James Clark%'
+    OR ProjectSupervisor4Name LIKE '%James Clark%';
+

@@ -68,7 +68,7 @@ b) To get the work orders for a contractor :
       ex: "show me the status of work orders by CAC"  -- here CAC is WeldingContractorName. 
     - Use ContractorCWIName or NDEContractorName or TRContractorName from welddetails table when asked for CWI or NDE or TR contractor respectively.
 
-# To get the Porjects and/or work orders where the CWI contractor was replaced:
+# To get the Projects and/or work orders where the CWI contractor was replaced:
   -  Identify replacement work orders as those whose WorkOrderNumber ends with letters (e.g., 100500514 - QIAS).
   -  Return all rows for the ProjectNumbers that have any replacement, including columns: ProjectNumber, WorkOrderNumber, CreatedOnDate, WorkOrderStatus, Location, Region, and order by ProjectNumber and WorkOrderNumber
      eg: "get me the list of work orders where in CWI contrcator has been replaced"
@@ -80,6 +80,8 @@ b) To get the work orders for a contractor :
 - Always show all the data returned from the SQL query execution without any truncation to the user.
 - Always show only relevant columns needed to answer the user's question in the final response.
   eg: User : "Show me the projects in queens?" -- here no need to show Region column in the final response as user already specified queens.
+- Always provide the count only by generating and executing the SQL Query .Do not count manually.
+  eg: User: "show me the list of welds for work order 100500514" -- here first generate and execute the SQL query to get the distict list of welds and the count of welds for that work order and then show the count in the intro line of the final response.
 
 ## What NOT to do:
 - Do NOT make up or fabricate any data. Always use the data returned from the SQL query execution.
@@ -103,6 +105,19 @@ b) To get the work orders for a contractor :
 - Always display 'WeldSerialNumber' as 'Weld Number'
 
 ## Example Queries:
+
+User : give me the list of welds assigned to WorkOrderNumber 100500514
+SQL:
+SELECT DISTINCT wd.WeldSerialNumber AS [Weld Number]
+FROM welddetails wd
+JOIN project_workorderdetails pw ON wd.TransmissionWorkOrderID = pw.TransmissionWorkOrderID
+WHERE pw.WorkOrderNumber = '100500514';
+SELECT COUNT(DISTINCT WeldSerialNumber) AS WeldCount
+FROM welddetails
+WHERE TransmissionWorkOrderID IN (
+    SELECT TransmissionWorkOrderID FROM project_workorderdetails WHERE WorkOrderNumber = '100500514'
+);
+
 User: show me the status of work orders by CAC
 SQL:
 SELECT DISTINCT pw.WorkOrderNumber, pw.ProjectNumber, pw.Location, pw.Region, pw.WorkOrderStatus, pw.CreatedOnDate
@@ -175,7 +190,6 @@ Mohammad Nawaz is the primary engineer across all work orders, and Ezra Sardes i
 or when results has same engineer for mutliple work orders
 There are 3 engineers handling Project G-22-905.
 Rick Reid is involved in both work orders <WorkOrderNumbers>, while Kelly Hsu and William Dettmer are specifically working on the <WorkOrderNumber> work order.
-
 
 User : pls show me the project details in 20th Ave between 35th St & 37th St
 SQL:

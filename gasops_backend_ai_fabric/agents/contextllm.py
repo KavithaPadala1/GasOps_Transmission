@@ -47,8 +47,15 @@ def rewrite_question(prev_msgs: Optional[List[dict]], current_question: str, aut
         **Examples:**
         - Previous: "Show me welders", Current: "show me work orders" → Return: "show me work orders" (NEW question)
         - Previous: "Hello", Current: "show me work orders" → Return: "show me work orders" (NEW question)
-        -Previous: "How many projects are in queens which are still in progress?", Current: "Give me the projects ending with 16" → Return: "Give me the projects ending with 16" (NEW complete question, do NOT add Queens or in progress)
-        
+        - Previous: "How many projects are in queens which are still in progress?", Current: "Give me the projects ending with 16" → Return: "Give me the projects ending with 16" (NEW complete question, do NOT add Queens or in progress)
+        - Previous: 
+            User : "give me the work orders assigned to james
+            Response : I found a few people named James 😊 Could you let me know which one you meant?  
+            1. **James Hall** - Project Supervisor  
+            2. **James Clark** - Project Supervisor  
+            3. **James Burke** - C W I
+            User : James Clark
+            Current: "James Clark" → Return: "Show me the work orders assigned to  Project Supervisor James Clark" (Clarification/selection)
         Return only the rewritten question.
         """
     )

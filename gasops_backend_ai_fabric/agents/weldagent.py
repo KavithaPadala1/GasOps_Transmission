@@ -76,12 +76,13 @@ async def handle_weld(query: str, auth_token: str = None):
             
             if function_name == "execute_sql_query":
                 sql_query = function_args.get("sql_query")
-                print(f"[weldagent] Generated SQL Query:\n{sql_query}\n")
+                # print(f"[weldagent] Generated SQL Query:\n{sql_query}\n")
                 
                 # Execute the SQL query
                 try:
                     sql_results = execute_sql_query(sql_query)
                     print(f"[weldagent] Query returned {len(sql_results) if sql_results else 0} rows")
+                    print(f"[weldagent] SQL Results: {sql_results}")
                     
                     # Add tool response to messages
                     tool_response = {

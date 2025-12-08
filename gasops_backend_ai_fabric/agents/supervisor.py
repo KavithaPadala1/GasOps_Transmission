@@ -171,6 +171,7 @@ from agents.weldagent import handle_weld
 from agents.mtragent import handle_mtr
 from agents.specsagent import handle_specs
 from tools.numberclarifier import number_clarifier_llm
+from tools.nameclarifier import name_clarifier_llm
 
 
 async def supervisor(query, database_name=None, auth_token=None, clarification_done=False):
@@ -295,6 +296,35 @@ async def supervisor(query, database_name=None, auth_token=None, clarification_d
             # Return error message to user when number not found
             error_message = clarifier_result.get("error", "Unable to clarify the number in your query.")
             print(f"Number clarification failed: {error_message}")
+            return {
+                "answer": error_message
+            }
+            
+            
+    # Handle nameclarifier tool
+    if parsed.get("tool") == "nameclarifier" and not clarification_done:
+        print("Routing to nameclarifier tool")
+        clarifier_result = await name_clarifier_llm(query, auth_token)
+        
+        # Check if name clarifier needs user input for multiple matches
+        if clarifier_result.get("needs_clarification"):
+            print(f"Name clarifier needs user clarification")
+            return {
+                "answer": clarifier_result.get("clarification_message"),
+                "needs_clarification": True,
+                "matches": clarifier_result.get("matches"),
+                "original_query": clarifier_result.get("original_query")
+            }
+        
+        if clarifier_result.get("success"):
+            # Single match found - rewrite and route to agent
+            rewritten_query = clarifier_result.get("rewritten_query")
+            print(f"Name clarified. Reprocessing with: {rewritten_query}")
+            return await supervisor(rewritten_query, database_name, auth_token, clarification_done=True)
+        else:
+            # Return error message when name not found
+            error_message = clarifier_result.get("error", "Unable to clarify the name in your query.")
+            print(f"Name clarification failed: {error_message}")
             return {
                 "answer": error_message
             }
