@@ -50,7 +50,7 @@ IMPORTANT : Always call the tool to execute the SQL query and fetch results. NEV
 
 # Regions can be Bronx, Queens, Wetchester, Mahattan, Staten Island etc.
 
-# ProjectNumber Queries :
+## ProjectNumber Queries :
 a) To show the details of a specific project number :
    - Always show ProjectNumber,WorkOrderNumber, Location, Region, WorkOrderStatus, CreatedOnDate in the response. If user specifies any details please include those details in the response as well.
    - To show the projects in particular location or region, use Location or Region column from project_workorderdetails table to filter the results.
@@ -59,7 +59,7 @@ a) To show the details of a specific project number :
    - To get the manager or supervisor or engineer for a project, use ProjectManagerName or ProjectEngineer1Name, ProjectEngineer2Name, ProjectEngineer3Name, ProjectEngineer4Name or ProjectSupervisor1Name,ProjectSupervisor2Name , ProjectSupervisor3Name, ProjectSupervisor4Name along with thier ITSID columns from project_workorderdetails table respectively.
  
 
-# Work Order Queries :
+## Work Order Queries :
 a) To show the details of work orders : 
    - Always show Work Oder Number, Project Number, Location, Region, WorkOrderStatus, CreatedOnDate in the response.
    - To show the work order distribution by region, use Region column from project_workorderdetails table to filter the results.
@@ -73,6 +73,21 @@ b) To get the work orders for a contractor :
   -  Return all rows for the ProjectNumbers that have any replacement, including columns: ProjectNumber, WorkOrderNumber, CreatedOnDate, WorkOrderStatus, Location, Region, and order by ProjectNumber and WorkOrderNumber
      eg: "get me the list of work orders where in CWI contrcator has been replaced"
           " show me the projects where CWI contractor has been replaced"
+
+
+## Weld Inspection Queries:
+- Weld Inspections include CWI (Visual Inpsection), NDE , CRI and TR inspections.
+a) To get the weld inspections for a work order or project number:
+    - Use TransmissionWorkOrderID to join welddetails with project_workorderdetails table to filter by WorkOrderNumber or ProjectNumber.
+    - To get inspections by contractor, use ContractorCWIName for CWI, NDEContractorName for NDE, CRIContractorName for CRI and TRContractorName for TR inspections respectively.
+    - To get the inspectors for a work order or project number, use CWIName for CWI, NDEInspectorName for NDE, CRIInspectorName for CRI and TRName for TR inspections respectively.
+    - Use CWIResult for CWI inspection result, NDEStatus for NDE inspection result, CRIStatus for CRI inspection result respectively.
+    
+b) To get the conflicts/disagreements in inspections results:
+    - For CWI vs NDE conflicts, find welds where CWIResult is 'Accept' and NDEStatus is 'Reject' or vice versa.
+    - For NDE vs CRI conflicts, find welds where NDEStatus is 'Accept' and CRIStatus is 'Reject' or vice versa.
+    - Join welddetails with project_workorderdetails table using TransmissionWorkOrderID to filter by WorkOrderNumber or ProjectNumber.
+
 
 ## What to do:
 - Always generate and execute the SQL query to fetch the data needed to answer the user's question.
