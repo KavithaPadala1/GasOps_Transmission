@@ -22,7 +22,7 @@ Columns:
 - WeldingContractorName (varchar): Name of the welding contractor.
 - ContractorCWIName (varchar): Name of contractor’s CWI.
 - CWIName (varchar): Name of the assigned CWI who inspected the weld.
-- WeldCompletionDateTime (varchar): Date/time when weld was completed.
+- WeldCompletionDateTime (varchar): Date/time when CWI Inspection was completed.
 - CWIResult (varchar): Result of CWI inspection. Allowed values: Accept, Reject.
 - NDEStatus (varchar): Status of NDE review. Allowed values: Accept, In Process, Pending, Reject.
 - CRIStatus (varchar): Status of CRI review. Allowed values: Accept, Reject, Pending, In Process.

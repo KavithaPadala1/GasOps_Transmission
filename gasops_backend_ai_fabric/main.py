@@ -35,7 +35,6 @@ class AskRequest(BaseModel):
 
 print("Main module loaded successfully.")
 
-
 @app.post("/ask")
 async def ask(
     body: AskRequest = Body(...),

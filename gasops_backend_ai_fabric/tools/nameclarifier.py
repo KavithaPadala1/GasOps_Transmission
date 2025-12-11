@@ -193,7 +193,7 @@ def generate_static_name_search_query(name: str) -> str:
                 WHEN {category} LIKE '%{sanitized_name}%' THEN 0.6
                 ELSE 0.0
             END as similarity
-        FROM NameUniqueTable 
+        FROM  nameuniquetable 
         WHERE {category} IS NOT NULL
           AND {category} != ''
           AND (

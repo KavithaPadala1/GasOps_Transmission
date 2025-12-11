@@ -152,3 +152,45 @@ WHERE
     OR ProjectSupervisor3Name LIKE '%James Clark%'
     OR ProjectSupervisor4Name LIKE '%James Clark%';
 
+User : show me the inspection status for 101493409
+SQL Query:
+SELECT wd.WeldSerialNumber AS [Weld Number], wd.CWIResult, wd.NDEStatus, wd.CRIStatus
+FROM welddetails wd
+JOIN project_workorderdetails pw ON wd.TransmissionWorkOrderID = pw.TransmissionWorkOrderID
+WHERE pw.WorkOrderNumber = '101493409';
+SELECT COUNT(DISTINCT WeldSerialNumber) AS WeldCount
+FROM welddetails
+WHERE TransmissionWorkOrderID IN (
+    SELECT TransmissionWorkOrderID FROM project_workorderdetails WHERE WorkOrderNumber = '101493409'
+);
+
+User : Are there any conflict in inspection for 100500514
+SQL Query:
+SELECT wd.WeldSerialNumber AS [Weld Number], wd.CWIResult, wd.NDEStatus, wd.CRIStatus 
+FROM welddetails wd
+JOIN project_workorderdetails pw ON wd.TransmissionWorkOrderID = pw.TransmissionWorkOrderID
+WHERE pw.WorkOrderNumber = '100500514'
+AND (
+    (wd.CWIResult = 'Accept' AND wd.NDEStatus = 'Reject') OR
+    (wd.CWIResult = 'Reject' AND wd.NDEStatus = 'Accept') OR
+    (wd.NDEStatus = 'Accept' AND wd.CRIStatus = 'Reject') OR
+    (wd.NDEStatus = 'Reject' AND wd.CRIStatus = 'Accept')
+);
+SELECT COUNT(DISTINCT wd.WeldSerialNumber) AS WeldCount
+FROM welddetails wd
+JOIN project_workorderdetails pw ON wd.TransmissionWorkOrderID = pw.TransmissionWorkOrderID
+WHERE pw.WorkOrderNumber = '100500514'
+AND (
+    (wd.CWIResult = 'Accept' AND wd.NDEStatus = 'Reject') OR
+    (wd.CWIResult = 'Reject' AND wd.NDEStatus = 'Accept') OR
+    (wd.NDEStatus = 'Accept' AND wd.CRIStatus = 'Reject') OR
+    (wd.NDEStatus = 'Reject' AND wd.CRIStatus = 'Accept')
+);
+
+User : show me the welds where there is no CWI inspector assigned yet
+SQL:
+-- all welds where CWI inspection is done but the CWI inspector name is missing
+SELECT DISTINCT wd.WorkOrderNumber, wd.WeldSerialNumber AS [Weld Number], wd.CWIName, wd.CWIResult, wd.WeldCompletionDateTime
+FROM welddetails wd
+WHERE (wd.CWIName IS NULL OR wd.CWIName = '')
+  AND (wd.CWIResult IS NOT NULL AND wd.CWIResult <> '');
