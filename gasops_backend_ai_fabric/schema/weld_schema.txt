@@ -5,8 +5,6 @@ Description: Stores complete weld inspection, execution, NDE, CRI, and completio
 Columns:
 - TransmissionWorkOrderID (bigint): Unique ID linking weld to the work order.
 - WeldSerialNumber (varchar): Unique serial number assigned to the weld.
-- IsCutOut (varchar): Indicates if weld was cut out. Allowed values: YES, NO.
-- IsRepaired (varchar): Indicates if weld was repaired. Allowed values: YES, NO.
 - Completed (varchar): Indicates if the weld is completed. Allowed values: YES, NO.
 - IsUnlocked (varchar): Indicates if weld record is unlocked for edit. Allowed values: YES, NO.
 - TieinWeld (varchar): Indicates if weld is a tie-in weld. Allowed values: YES, NO.
@@ -18,7 +16,7 @@ Columns:
 - InsideInspected (varchar): Indicates whether inside inspection was done. Allowed values: YES, NO.
 - AddedtoWeldMap (varchar): Indicates weld is added to weld map. Allowed values: YES, NO.
 - HasNDEReport (varchar): Indicates if NDE report exists. Allowed values: YES, NO.
-- WeldCategory (varchar): Type/category of weld (e.g., Production, CutOut).
+- WeldCategory (varchar): Type/category of weld (e.g., Production, CutOut,Repaired).
 - WeldingContractorName (varchar): Name of the welding contractor.
 - ContractorCWIName (varchar): Name of contractor’s CWI.
 - CWIName (varchar): Name of the assigned CWI who inspected the weld.

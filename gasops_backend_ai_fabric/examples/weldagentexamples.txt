@@ -194,3 +194,32 @@ SELECT DISTINCT wd.WorkOrderNumber, wd.WeldSerialNumber AS [Weld Number], wd.CWI
 FROM welddetails wd
 WHERE (wd.CWIName IS NULL OR wd.CWIName = '')
   AND (wd.CWIResult IS NOT NULL AND wd.CWIResult <> '');
+
+User : show me all the welds where visual inspection is not completed in 100500514
+SQL:
+SELECT DISTINCT wd.WeldSerialNumber AS [Weld Number], wd.CWIResult, wd.WeldCompletionDateTime
+FROM welddetails wd
+JOIN project_workorderdetails pw ON wd.TransmissionWorkOrderID = pw.TransmissionWorkOrderID
+WHERE pw.WorkOrderNumber = '100500514'
+  AND (wd.CWIResult IS NULL OR wd.CWIResult = ''
+       OR wd.WeldCompletionDateTime IS NULL OR wd.WeldCompletionDateTime = '');
+
+User : Give me the projects assigned to CWI contractor Shaw Pipeline Services
+SQL :
+SELECT DISTINCT pw.ProjectNumber, pw.WorkOrderNumber, pw.Location, pw.Region, pw.WorkOrderStatus, pw.CreatedOnDate,
+       (SELECT COUNT(DISTINCT ProjectNumber) FROM project_workorderdetails WHERE ContractorCWIName LIKE '%Shaw Pipeline Services%') AS ProjectCount,
+       (SELECT COUNT(DISTINCT WorkOrderNumber) FROM project_workorderdetails WHERE ContractorCWIName LIKE '%Shaw Pipeline Services%') AS WorkOrderCount
+FROM project_workorderdetails pw
+WHERE pw.ContractorCWIName LIKE '%Shaw Pipeline Services%';
+
+User : show me the breakdown of welds by joiner for G-23-901
+SQL :
+SELECT 
+    COALESCE(wd.Welder1Name, wd.Welder2Name, wd.Welder3Name, wd.Welder4Name) AS JoinerName, 
+    COUNT(DISTINCT wd.WeldSerialNumber) AS WeldCount 
+FROM welddetails wd
+JOIN project_workorderdetails pw 
+    ON wd.TransmissionWorkOrderID = pw.TransmissionWorkOrderID
+WHERE pw.ProjectNumber = 'G-23-901'
+GROUP BY COALESCE(wd.Welder1Name, wd.Welder2Name, wd.Welder3Name, wd.Welder4Name)
+ORDER BY WeldCount DESC;

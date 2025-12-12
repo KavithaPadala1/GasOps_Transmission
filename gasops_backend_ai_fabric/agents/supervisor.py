@@ -168,8 +168,9 @@ import os
 
 # Import agent handlers
 from agents.weldagent import handle_weld
-from agents.mtragent import handle_mtr
-from agents.specsagent import handle_specs
+from agents.mtr_agent import handle_mtr_agent
+# from agents.specsagent import handle_specs
+from agents.specs_agent import handle_specs_agent
 from tools.numberclarifier import number_clarifier_llm
 from tools.nameclarifier import name_clarifier_llm
 
@@ -235,6 +236,7 @@ async def supervisor(query, database_name=None, auth_token=None, clarification_d
             Example ambiguous: "give me the work orders assigned to manju" -- name manju needs clarification
             Example clear: "give me the work orders assigned to WelderName manju" -- already clarified, route to agent
             Example clear: "give me the list of work orders supervised by Waqar" -- already clarified as supervised means SupervisorName, route to agent.
+            Example ambiguous : Give me the projects assigned to Shaw Pipeline Services
         - These tools will return either the actual category of the number/name OR a direct answer for verification questions.
         
         Available agents and their domains:
@@ -253,6 +255,14 @@ async def supervisor(query, database_name=None, auth_token=None, clarification_d
         - If user question is ambiguous: {{"answer": "<ask for clarification clearly>"}}
         - If number ambiguity (ONLY if no category prefix exists): {{"tool": "numberclarifier"}}
         - If name ambiguity (ONLY if no role prefix exists): {{"tool": "nameclarifier"}}
+        
+        Examples:
+        User : "for heat no 924278 are the chemical properties consistent with API 5L requirements?"
+        Response: {{"agent": "mtragent"}}
+        User : "is there any work order number starting with QG?"
+        Response: {{"tool": "weldagent"}}  -- no need for clarification as user said "work order number"
+        User : show me the welds in QG21011633 
+        Response: {{"tool": "numberclarifier"}}  -- QG21011633 is ambiguous without category prefix
         """
     )
 
@@ -340,9 +350,9 @@ async def supervisor(query, database_name=None, auth_token=None, clarification_d
         return await handle_weld(query, auth_token)
     elif parsed.get("agent") == "mtragent":
         print("Routing to mtragent")
-        return await handle_mtr(query, auth_token)
+        return handle_mtr_agent(query, auth_token)
     elif parsed.get("agent") == "specsagent":
         print("Routing to specsagent")
-        return await handle_specs(query, auth_token)
+        return handle_specs_agent(query, auth_token)
     
     return parsed

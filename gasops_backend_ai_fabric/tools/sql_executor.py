@@ -269,7 +269,7 @@ def get_fabric_connection_freetds():
         
         # Establish connection with Azure AD token
         conn = pyodbc.connect(connection_string, attrs_before={1256: token_struct})
-        print("[get_fabric_connection_freetds] ✅ Connection established successfully")
+        print("[get_fabric_connection] ✅ Connection established successfully")
         
         return conn
         
@@ -285,7 +285,7 @@ def get_fabric_connection_freetds():
                 token_bytes = token_str.encode("utf-16-le")
                 token_struct = struct.pack(f'<I{len(token_bytes)}s', len(token_bytes), token_bytes)
                 conn = pyodbc.connect(connection_string, attrs_before={1256: token_struct})
-                print("[get_fabric_connection_freetds] ✅ Connection established with refreshed token")
+                print("[get_fabric_connection] ✅ Connection established with refreshed token")
                 return conn
             except Exception as retry_error:
                 raise Exception(f"Connection failed even after token refresh: {str(retry_error)}")
@@ -293,7 +293,7 @@ def get_fabric_connection_freetds():
         raise Exception(error_msg)
     except Exception as e:
         error_msg = f"Unexpected connection error: {str(e)}"
-        print(f"[get_fabric_connection_freetds] ❌ {error_msg}")
+        print(f"[get_fabric_connection] ❌ {error_msg}")
         raise Exception(error_msg)
 
 

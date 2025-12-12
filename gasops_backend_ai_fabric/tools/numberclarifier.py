@@ -40,10 +40,12 @@ async def number_clarifier_llm(query: str, auth_token=None):
     
     Your task:
     1. Extract the ambiguous number from the query
-    2. Generate a SQL query to check all three categories with FUZZY MATCHING
+    2. Generate a SQL query to check all three categories with FUZZY MATCHING to execute in SQL Server (Microsoft Fabric Data Warehouse)
     
     Generate a combined SQL query with UNION that handles fuzzy matching:
     
+    IMPORTANT: Use SQL Server syntax with '+' for string concatenation (NOT '||').
+
     SELECT COUNT(*) as count, 'ProjectNumber' as category, MAX(ProjectNumber) as matched_value 
     FROM project_workorderdetails 
     WHERE REPLACE(REPLACE(ProjectNumber, '-', ''), ' ', '') = REPLACE(REPLACE('<number>', '-', ''), ' ', '')

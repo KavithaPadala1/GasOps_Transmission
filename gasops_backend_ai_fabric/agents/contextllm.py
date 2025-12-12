@@ -56,6 +56,7 @@ def rewrite_question(prev_msgs: Optional[List[dict]], current_question: str, aut
             3. **James Burke** - C W I
             User : James Clark
             Current: "James Clark" → Return: "Show me the work orders assigned to  Project Supervisor James Clark" (Clarification/selection)
+        - Previous: "Hi", Current: "show me all the welds where visual inspection is not completed in 100500514" → Return: "show me all the welds where visual inspection is not completed in 100500514" (NEW question)
         Return only the rewritten question.
         """
     )
